@@ -310,20 +310,39 @@ This makes it possible to examine whether similar bias and refusal patterns appe
 
 ## Relationship to the Llama 2 Repository
 
-This repository continues and extends the work from:
+This repository continues and extends the earlier Llama 2 activation-steering project:
 
 [https://github.com/mehuly25/llama2](https://github.com/mehuly25/llama2)
 
-The earlier repository studied activation steering in **Llama 2 7B Chat** using English and Italian datasets. This repository applies a related methodology to **GPT-OSS-20B**.
+The earlier repository studied bias representations in **Llama 2 7B Chat** using activation steering, while this repository applies the **same Contrastive Activation Steering algorithm** to **GPT-OSS-20B**. The purpose of this repository is therefore not to introduce a new steering method, but to test whether the same representation-level bias analysis also works for a different model family.
 
-Together, the two repositories support a broader comparative study of:
+In both repositories, the core algorithm is the same. Paired stereotype and anti-stereotype prompts are passed through the model, and their internal activations are extracted from selected transformer layers. A steering vector is then computed by taking the average difference between the stereotype and anti-stereotype activations. This vector is treated as a bias direction in the model's activation space. During generation, the vector is added to the model's residual stream to examine whether the model becomes more likely to produce concept-consistent behaviour, such as gender, race, religion, or refusal-related outputs.
 
-- Llama 2 7B Chat vs. GPT-OSS-20B
-- English vs. Italian prompts
-- Gender, race, and religion bias
-- Bias steering vs. refusal steering
-- Output-level safety vs. representation-level bias
+Both repositories also use refusal steering. In addition to constructing bias vectors, a refusal vector is constructed from refusal-related prompt pairs. This makes it possible to test whether the model's safety behaviour hides biased internal representations. In the combined steering setting, a bias vector is added while the refusal vector is subtracted, allowing the experiment to examine whether biased completions appear when refusal behaviour is reduced.
 
+Although the algorithm is the same, the implementation differs because the two models require different handling. The Llama 2 repository uses the Llama 2 chat format with `[INST] ... [/INST]` prompts and wraps the internal transformer blocks directly to capture and modify activations. The GPT-OSS-20B implementation uses a GPT-OSS-specific wrapper built around the Hugging Face model interface and chat-template formatting. This wrapper captures the relevant hidden states, applies steering vectors inside the model, and supports the same kinds of bias, refusal, and combined bias-refusal experiments used in the Llama 2 project.
+
+The GPT-OSS implementation therefore adapts the earlier Llama 2 pipeline to a new model architecture while preserving the same conceptual procedure:
+
+1. construct paired stereotype and anti-stereotype prompts;
+2. extract internal activations from selected layers;
+3. compute steering vectors from activation differences;
+4. save positive activations, negative activations, and steering vectors;
+5. add bias vectors during generation;
+6. construct and apply refusal vectors;
+7. compare unsteered, bias-steered, and bias-plus-refusal-steered outputs;
+8. repeat the experiments for both English and Italian prompts.
+
+Together, the Llama 2 and GPT-OSS repositories support a broader comparative study of:
+
+- **Llama 2 7B Chat vs. GPT-OSS-20B**
+- **English vs. Italian prompts**
+- **Gender, race, and religion bias**
+- **Bias steering vs. refusal steering**
+- **Output-level safety vs. representation-level bias**
+- **Whether the same activation-steering algorithm behaves similarly across model families**
+
+In short, this repository is a model-family extension of the Llama 2 work. It keeps the same activation-steering logic but modifies the engineering wrapper so that the method can be applied correctly to GPT-OSS-20B.
 ---
 
 ## Requirements
