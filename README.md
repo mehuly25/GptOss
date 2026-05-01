@@ -342,7 +342,7 @@ Together, the Llama 2 and GPT-OSS repositories support a broader comparative stu
 - **Output-level safety vs. representation-level bias**
 - **Whether the same activation-steering algorithm behaves similarly across model families**
 
-In short, this repository is a model-family extension of the Llama 2 work. It keeps the same activation-steering logic but modifies the engineering wrapper so that the method can be applied correctly to GPT-OSS-20B.
+#### In short, this repository is a model-family extension of the Llama 2 work. It keeps the same activation-steering logic but modifies the engineering wrapper so that the method can be applied correctly to GPT-OSS-20B.
 ---
 
 ## Requirements
@@ -404,16 +404,26 @@ This work builds on the earlier Llama 2 activation-steering project:
 
 ## Based On
 
-This project is methodologically inspired by prior work on activation steering, contrastive activation addition, representation engineering, and bias analysis in language models.
+This project is inspired by the paper:
 
-Relevant areas of prior work include:
+**Investigating Bias Representations in Llama 2 Chat via Activation Steering**  
+Dawn Lu and Nina Rimsky  
+arXiv:2402.00402v1 [cs.CL], 1 February 2024
 
-- Contrastive Activation Addition
-- Representation Engineering
-- StereoSet bias evaluation
-- Bias and refusal analysis in Llama 2 Chat
-- Multilingual bias evaluation
+The paper studies societal bias in **Llama 2 7B Chat** using activation steering. It uses **Contrastive Activation Addition** to construct steering vectors from paired stereotype and anti-stereotype prompts, then adds those vectors to the model's residual stream to examine whether biased behaviour can be elicited or reduced.
 
+Our work follows the same core idea: bias can be studied not only through the model's final outputs, but also through the model's internal activation space. In particular, this project adopts the idea of constructing bias vectors for social categories such as gender, race, and religion, and then using those vectors to test how strongly the model represents these biases internally.
+
+The paper also shows that refusal behaviour plays an important role in bias analysis. In some cases, the model refuses to answer sensitive prompts, which can make the model appear safer at the output level. However, the use of refusal steering vectors can reveal that biased representations may still exist internally. This repository builds on that insight by including refusal-vector experiments alongside bias-vector experiments.
+
+While the original paper focuses on **Llama 2 7B Chat**, this repository extends the same activation-steering framework to **GPT-OSS-20B**. It also expands the analysis to a bilingual setting by comparing English and Italian prompts. This allows the project to examine whether bias and refusal representations behave similarly across:
+
+- different model families;
+- different languages;
+- different social bias domains;
+- output-level responses and internal model representations.
+
+### In this sense, the present repository is not a reimplementation alone. It is an extension of the activation-steering approach introduced in the paper, applied to a new model family and a multilingual bias-analysis setting.
 ---
 
 ## License
